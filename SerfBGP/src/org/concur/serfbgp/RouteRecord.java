@@ -37,5 +37,10 @@ public class RouteRecord implements Comparable<RouteRecord>{
 	public RouteRecord addTax(int p) {
 		return new RouteRecord(dstNode,path,price+p);
 	}
+	public boolean pathIncludes(int n){
+		for(int i=0;i<path.length;i++)
+			if (path[i]==n) return true;
+		return false;
+	}
 	
 }

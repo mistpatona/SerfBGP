@@ -2,6 +2,7 @@ package org.concur.serfbgp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 
 
@@ -12,8 +13,18 @@ public class RouteList extends ArrayList<RouteRecord> {
 		for (RouteRecord r:this) if (r.dstNode == d) ans.add(r);
 		return ans;
 	}
+	public RouteList filterOutNode(int n) {
+		RouteList ans = new RouteList();
+		for (RouteRecord r:this) if (!r.pathIncludes(n)) ans.add(r);
+		return ans;
+	}
 	public RouteList() {}
 	public static RouteList mkRouteList(RouteRecord[] rs) {
+		RouteList ans = new RouteList();
+		for (RouteRecord r:rs) ans.add(r);
+		return ans;
+	}
+	public static RouteList mkRouteList(Collection<RouteRecord> rs) {
 		RouteList ans = new RouteList();
 		for (RouteRecord r:rs) ans.add(r);
 		return ans;
