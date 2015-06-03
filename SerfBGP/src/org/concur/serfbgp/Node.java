@@ -2,16 +2,21 @@ package org.concur.serfbgp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 
 
 
 public class Node {
 	private static Integer node_counter = 0;
 	private Integer id = node_counter++;
+	public static final String routeTableChanged = "route table changed"; 
 	private ArrayList<Node> neighbours;
 	private Map<Integer,RouteList> receivedRoutes = new HashMap<Integer,RouteList>();
 	private RouteList routeTable = new RouteList();
+	private ArrayBlockingQueue<NodeEvent> inputEvents = new ArrayBlockingQueue<NodeEvent>(25);
 
 	public Integer getId() {return id;}
 	public String toString() {return "N"+id;}
@@ -29,19 +34,19 @@ public class Node {
 	public Node(){
 		neighbours = new ArrayList<Node>(5);
 	}
-	public Node(Node n){
+	/*public Node(Node n){
 		neighbours = new ArrayList<Node>(5);
 		neighbours.add(n);
 	}
 	public Node(Collection<Node> ns){
 		neighbours = new ArrayList<Node>(ns);
-	}
+	}*/
 	private RouteList listFromNode(Node n, RouteList rs){
 		return rs.taxRoutes(getNeighbourPrice(n));
 	}
-	public void importRoutesFromNode(Node n, RouteList rs){
+	/*private void importRoutesFromNode(Node n, RouteList rs){
 		receivedRoutes.put(n.getId(), rs);
-	}
+	}*/
 	public Map<Integer,RouteRecord> routesByDst(){
 		RouteList allRs = new RouteList();
 		for (RouteList x : receivedRoutes.values())
@@ -70,22 +75,45 @@ public class Node {
 		routeTable = bestRouteList();//essentially from "receivedRoutes" Map
 	}
 	public RouteList getRouteTable(){
-		RouteList r = //RouteList.mkRouteList(routeTable);
-		  routeTable.mkExportRouteList(getId());
+		RouteList r = routeTable.mkExportRouteList(getId());
 		r.add(RouteRecord.mkOwnRecord(getId()));
 		return r; 
 	}
 	public void updateReceivedRoutes(){
 		Map<Integer,RouteList> tmp = new HashMap<Integer,RouteList>();
-		RouteList rs = new RouteList();
 		for (Node n : neighbours){
-			rs = listFromNode(n,n.getRouteTable());
+			RouteList rs = listFromNode(n,n.getRouteTable());
 			tmp.put(n.getId(), rs);
 		}
+		receivedRoutes = tmp;
+	}
+	public void updateReceivedRoutes(Node n){
+		Map<Integer,RouteList> tmp = receivedRoutes;
+		    RouteList rs = listFromNode(n,n.getRouteTable());
+			tmp.put(n.getId(), rs);
 		receivedRoutes = tmp;
 	}
 	public void updateRoutes(){
 		updateReceivedRoutes();
 		updateRouteTable();
 	}
+	public void updateRoutes(Node n){
+		updateReceivedRoutes(n);
+		updateRouteTable();
+	}
+	public void notifyRoutesChanged(Node n) throws InterruptedException{
+		inputEvents.put(new NodeEvent(n,routeTableChanged));
+	}
+	public void checkRoutesChanged() throws InterruptedException {
+		Set<Node> s = new HashSet<Node>();
+		while (!inputEvents.isEmpty()) {
+			NodeEvent e = inputEvents.take();
+			if (e.getMessage() == routeTableChanged) s.add(e.getNode());// compress repeating events
+		}
+		for (Node n : s) updateReceivedRoutes(n);
+		updateRouteTable();
+		for (Node n : neighbours) n.notifyRoutesChanged(this);
+		
+	}
+	
 }
