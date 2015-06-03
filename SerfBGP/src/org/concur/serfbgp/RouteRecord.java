@@ -1,23 +1,27 @@
 package org.concur.serfbgp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RouteRecord implements Comparable<RouteRecord>{
-	public static RouteRecord mkOwnRecord(int myNode){
-		int[] p = {myNode};
-		return (new RouteRecord(p,0) );
+	public static RouteRecord mkOwnRecord(Integer myNode){
+		ArrayList<Integer> a = new ArrayList<Integer>(); 
+		a.add(myNode);
+		return (new RouteRecord(a,0) );
 	}
-	public int dstNode;
-	public int[] path;
-	public int price;
-	public RouteRecord(int d,int[] pth, int pri){
+	public Integer dstNode;
+	public ArrayList<Integer> path;
+	public Integer price;
+	public RouteRecord(Integer d,List<Integer> pth, Integer pri){
 		dstNode = d;
-		path = pth;
+		path = new ArrayList<Integer>(pth);
 		price = pri;
-		assert path[path.length - 1] == dstNode;
+		// TODO: assert path[path.length - 1] == dstNode;
 	}
-	public RouteRecord(int[] pth, int pri){
-		path = pth;
+	public RouteRecord(List<Integer> pth, Integer pri){
+		path = new ArrayList<Integer>(pth);
 		price = pri;
-		dstNode = path[path.length - 1]; //  last element
+		dstNode = path.get(path.size()-1);  //  last element
  	}
 	@Override
 	public int compareTo(RouteRecord rt) {
@@ -27,20 +31,26 @@ public class RouteRecord implements Comparable<RouteRecord>{
 	}
 	private String showPath() {
 		StringBuilder result = new StringBuilder();
-		for (int i=0;i<path.length;i++) 
-			          result.append(":"+path[i]);
+		for (Integer i : path) 
+			          result.append(":"+i);
 	    return result.toString();
 	}
 	public String toString() {
 		return "("+dstNode+")" + showPath() + " " + price;
 	}
-	public RouteRecord addTax(int p) {
+	public RouteRecord plusTax(Integer p) {
 		return new RouteRecord(dstNode,path,price+p);
 	}
-	public boolean pathIncludes(int n){
-		for(int i=0;i<path.length;i++)
-			if (path[i]==n) return true;
-		return false;
+	public boolean pathIncludes(Integer n){
+		return path.contains(n);
+	}
+	public void prependPath(Integer n) {
+		path.add(0,n);
+	}
+	//  public RouteRecord withPrependedPath(Integer n) {
+		//	}
+	public RouteRecord copy() {
+		return new RouteRecord(dstNode,path,price);
 	}
 	
 }
