@@ -19,7 +19,8 @@ public class AsyncNode extends Node implements Runnable {
 	}*/
 	@Override
 	public String toString() {
-		return "A"+super.toString()+":"+neighboursString();
+		//return "A"+super.toString()+":"+neighboursString();
+		return super.toString();
 	}
 	
 	public void linkTo(AsyncNode n) throws InterruptedException{
@@ -32,6 +33,8 @@ public class AsyncNode extends Node implements Runnable {
 		super.unlinkFrom(nd);
 		nd.notifySomethingUpdated(this);
 		for (Node n : getNeighbours()) ((AsyncNode) n).notifySomethingUpdated(this);
+		for (Node n : nd.getNeighbours()) ((AsyncNode) n).notifySomethingUpdated(nd);
+
 	}
 	
 	public void runMsg() throws InterruptedException {
@@ -72,11 +75,11 @@ public class AsyncNode extends Node implements Runnable {
 			updateReceivedRoutes(n);
 		}
 		if (updateRouteTable()) {
-			System.out.println("[" +super.toShortString()+"] routes UPDated");
+			//System.out.println("[" +super.toShortString()+"] routes UPDated");
 				for (Node n : getNeighbours()) 
 					((AsyncNode) n).notifySomethingUpdated(this);
 		} else {
-			System.out.println("[" +super.toShortString()+"] routes NO UPDATES");
+			//System.out.println("[" +super.toShortString()+"] routes NO UPDATES");
 		}
 		//notifyAll();
 	}

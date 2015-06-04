@@ -22,7 +22,7 @@ public class Node {
 	
 
 	public Integer getId() {return id;}
-	public String toString() {return "_N"+id;}
+	public String toString() {return "N"+id;}
 	public String toShortString() {return "N"+id;}
 	public String neighboursString() {
 		StringBuilder result = new StringBuilder();
@@ -32,6 +32,7 @@ public class Node {
 	public Integer getNeighbourPrice(Node n) { return 100;}// for now, price is frozen
 	
 	public void removeNeighbour(Node n) {
+		System.out.println("[" +toString()+"] removing nei:"+n.toShortString());
 		if (!neighbours.remove(n)) return;
 		receivedRoutes.remove(n.getId());
 		updateRouteTable();
