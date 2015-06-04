@@ -29,6 +29,10 @@ public class RouteRecord implements Comparable<RouteRecord>{
 		int his = rt.price;
 		return (my < his) ? -1 : ( (my == his) ? 0 : 1);
 	}
+	public boolean eqTo (RouteRecord rt) {
+		if (this.price != rt.price) return false;
+		return (this.path.equals(rt.path));
+	}
 	private String showPath() {
 		StringBuilder result = new StringBuilder();
 		for (Integer i : path) 
