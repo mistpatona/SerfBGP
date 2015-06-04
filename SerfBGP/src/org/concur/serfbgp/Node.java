@@ -30,9 +30,16 @@ public class Node {
 		return result.toString();
 	}
 	public Integer getNeighbourPrice(Node n) { return 100;}// for now, price is frozen
-	/*public void addNeighbours(Collection<Node> ns) {
-		neighbours.addAll(ns);
-	}*/
+	
+	public void removeNeighbour(Node n) {
+		if (!neighbours.remove(n)) return;
+		receivedRoutes.remove(n.getId());
+		updateRouteTable();
+	}
+	public void unlinkFrom(Node n){
+		removeNeighbour(n);
+		n.removeNeighbour(this);
+	}
 	public  void addNeighbour(Node n) {
 		synchronized (neighbours) {
 		if ((!neighbours.contains(n)) && (!n.equals(this)))   neighbours.add(n);
@@ -45,13 +52,6 @@ public class Node {
 	public Node(){
 		neighbours = new ArrayList<Node>(5);
 	}
-	/*public Node(Node n){
-		neighbours = new ArrayList<Node>(5);
-		neighbours.add(n);
-	}
-	public Node(Collection<Node> ns){
-		neighbours = new ArrayList<Node>(ns);
-	}*/
 	private RouteList listFromNode(Node n, RouteList rs){
 		return rs.taxRoutes(getNeighbourPrice(n));
 	}
@@ -82,13 +82,18 @@ public class Node {
 	public RouteList bestRouteList() {
 		return RouteList.mkRouteList(routesByDst().values());
 	}
-	public void updateRouteTable(){
+	public boolean updateRouteTable(){
+		RouteList old = routeTable;
 		routeTable = bestRouteList();//essentially from "receivedRoutes" Map
+		return (!old.eqTo(routeTable));
 	}
 	public RouteList getRouteTable(){
 		RouteList r = routeTable.mkExportRouteList(getId());
 		r.add(RouteRecord.mkOwnRecord(getId()));
 		return r; 
+	}
+	public RouteList getRouteTable0(){
+		return routeTable; 
 	}
 	public void updateReceivedRoutes(){
 		Map<Integer,RouteList> tmp = new HashMap<Integer,RouteList>();

@@ -11,6 +11,9 @@ public class AsyncNodeManager  extends RunnableMsg{
 	private ExecutorService exec;
 	private List<AsyncNode> ns = new LinkedList<AsyncNode>();
 		
+	public AsyncNodeManager(ExecutorService e) {
+		exec = e;
+	}
 	public void add(AsyncNode n) {
 			exec.execute(n);
 			ns.add(n);
@@ -22,13 +25,14 @@ public class AsyncNodeManager  extends RunnableMsg{
 
 	@Override
 	public void runMsg() throws InterruptedException {
-		System.out.println("---------------");
+		//System.out.println("---------------");
 		for (AsyncNode n : ns) {
 				System.out.print(n.toString());
 				System.out.print(" #routes:"+n.getRouteTable().size());
-				System.out.println("*");
+				System.out.println(" #");
 		}
 		System.out.println("---------------");
+		//notifyAll();
 		TimeUnit.MILLISECONDS.sleep(3000);
 	}
 }

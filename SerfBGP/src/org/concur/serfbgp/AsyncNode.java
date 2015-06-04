@@ -3,6 +3,7 @@ package org.concur.serfbgp;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class AsyncNode extends Node implements Runnable {
 	
@@ -27,10 +28,17 @@ public class AsyncNode extends Node implements Runnable {
 		notifySomethingUpdated(n);  // notify myself ?! suppose it's better way than
 									// to call updating routes explicitly
 	}
+	public void unlinkFrom(AsyncNode nd) throws InterruptedException{
+		super.unlinkFrom(nd);
+		nd.notifySomethingUpdated(this);
+		for (Node n : getNeighbours()) ((AsyncNode) n).notifySomethingUpdated(this);
+	}
 	
 	public void runMsg() throws InterruptedException {
 		checkRoutesChanged();
-		synchronized(this) {wait();}
+		//wait();
+		//synchronized(this) {wait();}
+		TimeUnit.MILLISECONDS.sleep(1500);
 	}
 	@Override
 	public void run() {
@@ -56,9 +64,20 @@ public class AsyncNode extends Node implements Runnable {
 			if (e.getMessage() == routeTableChanged) s.add(e.getNode());// compress repeating events
 			if (e.getMessage() == somethingUpdated) s.add(e.getNode());// compress repeating events
 		}
-		for (Node n : s) updateReceivedRoutes(n);
-		updateRouteTable();
-		for (Node n : getNeighbours()) ((AsyncNode) n).notifySomethingUpdated(this);
-		
+		Set<Node> nei = new HashSet<Node>(getNeighbours());
+		//System.out.println("[" +super.toShortString()+"] updates from: "+s+" #");
+		// TODO: what is set intersection operation? we need (s 'intersect' nei) -- retainAll(getNeighbours())
+		for (Node n : s) if (nei.contains(n)) {
+			//System.out.println("[" +super.toShortString()+"] updates from: "+n+" ");
+			updateReceivedRoutes(n);
+		}
+		if (updateRouteTable()) {
+			System.out.println("[" +super.toShortString()+"] routes UPDated");
+				for (Node n : getNeighbours()) 
+					((AsyncNode) n).notifySomethingUpdated(this);
+		} else {
+			System.out.println("[" +super.toShortString()+"] routes NO UPDATES");
+		}
+		//notifyAll();
 	}
 }
