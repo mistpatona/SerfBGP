@@ -1,31 +1,42 @@
 package org.concur.serfbgp;
 import java.util.ArrayList;
-import java.util.Collection;
+//import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
+
+
 
 
 
 public class Node {
 	private static Integer node_counter = 0;
 	private Integer id = node_counter++;
-	public static final String routeTableChanged = "route table changed"; 
+
 	private ArrayList<Node> neighbours;
+	public ArrayList<Node> getNeighbours() {
+		return neighbours;
+	}
 	private Map<Integer,RouteList> receivedRoutes = new HashMap<Integer,RouteList>();
 	private RouteList routeTable = new RouteList();
-	private ArrayBlockingQueue<NodeEvent> inputEvents = new ArrayBlockingQueue<NodeEvent>(25);
+	
 
 	public Integer getId() {return id;}
-	public String toString() {return "N"+id;}
-	public Integer getNeighbourPrice(Node n) { return 100;}// for now, price is frozen
-	public void addNeighbours(Collection<Node> ns) {
-		neighbours.addAll(ns);
+	public String toString() {return "_N"+id;}
+	public String toShortString() {return "N"+id;}
+	public String neighboursString() {
+		StringBuilder result = new StringBuilder();
+		for (Node n : neighbours) result.append(n.toShortString()+";");
+		return result.toString();
 	}
-	public void addNeighbour(Node n) {
+	public Integer getNeighbourPrice(Node n) { return 100;}// for now, price is frozen
+	/*public void addNeighbours(Collection<Node> ns) {
+		neighbours.addAll(ns);
+	}*/
+	public  void addNeighbour(Node n) {
+		synchronized (neighbours) {
 		if ((!neighbours.contains(n)) && (!n.equals(this)))   neighbours.add(n);
+		}
 	}
 	public void linkTo(Node n) {
 		addNeighbour(n);
@@ -101,19 +112,8 @@ public class Node {
 		updateReceivedRoutes(n);
 		updateRouteTable();
 	}
-	public void notifyRoutesChanged(Node n) throws InterruptedException{
-		inputEvents.put(new NodeEvent(n,routeTableChanged));
-	}
-	public void checkRoutesChanged() throws InterruptedException {
-		Set<Node> s = new HashSet<Node>();
-		while (!inputEvents.isEmpty()) {
-			NodeEvent e = inputEvents.take();
-			if (e.getMessage() == routeTableChanged) s.add(e.getNode());// compress repeating events
-		}
-		for (Node n : s) updateReceivedRoutes(n);
-		updateRouteTable();
-		for (Node n : neighbours) n.notifyRoutesChanged(this);
-		
-	}
+	
+
+	
 	
 }

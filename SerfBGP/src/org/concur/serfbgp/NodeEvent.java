@@ -13,4 +13,7 @@ public class NodeEvent {
 		sender = n;
 		message = msg;
 	}
+	public String toString() {
+		return sender.toShortString() + ":" + message;
+	}
 }
