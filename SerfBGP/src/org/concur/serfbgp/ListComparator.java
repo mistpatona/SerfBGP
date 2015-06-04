@@ -2,18 +2,19 @@ package org.concur.serfbgp;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
-public class IterableComparator<T> implements Comparator<Iterable<T>>{
+public class ListComparator<T> implements Comparator<List<T>>{
 
 	Comparator<T> c;
 	
-	public IterableComparator(Comparator<T> c) {
+	public ListComparator(Comparator<T> c) {
 		super();
 		this.c = c;
 	}
 
 	@Override
-	public int compare(Iterable<T> arg0, Iterable<T> arg1) {
+	public int compare(List<T> arg0, List<T> arg1) {
 		Iterator<T> i0 = arg0.iterator();
 		Iterator<T> i1 = arg1.iterator();
 		while (i0.hasNext() && i1.hasNext()) {

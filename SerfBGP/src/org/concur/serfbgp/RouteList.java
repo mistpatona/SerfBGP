@@ -72,8 +72,8 @@ public class RouteList extends ArrayList<RouteRecord> {
 		RouteList s1 = RouteList.mkRouteList(this.asSortedArray());
 		RouteList s2 = RouteList.mkRouteList(other.asSortedArray());
 
-		IterableComparator<RouteRecord> ccc = 
-				new IterableComparator<RouteRecord>(new RouteRecordComparator());
+		ListComparator<RouteRecord> ccc = 
+				new ListComparator<RouteRecord>(new RouteRecordComparator());
 
 		return (ccc.compare(s1,s2) == 0);
 		
