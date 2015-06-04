@@ -63,6 +63,21 @@ public class RouteList extends ArrayList<RouteRecord> {
 	public RouteList sortedByPrice(){
 		return mkRouteList(this.asArraySortedByPrice()); 
 	}
+	public RouteRecord[] asSortedArray(){
+		RouteRecord[] tmp = this.asArray();
+		Arrays.sort(tmp,new RouteRecordComparator());
+		return tmp; 
+	}
+	public boolean eqTo(RouteList other) {
+		RouteList s1 = RouteList.mkRouteList(this.asSortedArray());
+		RouteList s2 = RouteList.mkRouteList(other.asSortedArray());
+
+		IterableComparator<RouteRecord> ccc = 
+				new IterableComparator<RouteRecord>(new RouteRecordComparator());
+
+		return (ccc.compare(s1,s2) == 0);
+		
+	}
 	public RouteList taxRoutes(Integer p){
 		RouteList ans = new RouteList();
 		for (RouteRecord r:this) 
