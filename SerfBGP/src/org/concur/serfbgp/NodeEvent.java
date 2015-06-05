@@ -21,4 +21,8 @@ public class NodeEvent {
 	public String toString() {
 		return sender.toShortString() + ":" + id;
 	}
+	
+	public static long lastCounter() {
+		return counter;
+	}
 }

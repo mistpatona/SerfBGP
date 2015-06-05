@@ -1,26 +1,29 @@
 package org.concur.serfbgp;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+//import java.util.concurrent.locks.ReentrantLock;
+
 public class AsyncNode extends Node implements Runnable {
 	
-	private ArrayBlockingQueue<NodeEvent> inputEvents = new ArrayBlockingQueue<NodeEvent>(25);
+	private ArrayBlockingQueue<NodeEvent> inputEvents = new ArrayBlockingQueue<NodeEvent>(125);
+	private int inputEventsMaxSize;
 	public static final String routeTableChanged = "route table changed"; 
 	public static final String somethingUpdated = "something updated";
+	private static Random rand = new Random(31);
 	
-	
-
-/*	public AsyncNode() {
-		// TODO Auto-generated constructor stub
-		super();
-	}*/
 	@Override
 	public String toString() {
 		//return "A"+super.toString()+":"+neighboursString();
 		return super.toString();
+	}
+	
+	public int inputEventsSize() {
+		return inputEventsMaxSize;//inputEvents.size();
 	}
 	
 	public void linkTo(AsyncNode n) throws InterruptedException{
@@ -39,9 +42,8 @@ public class AsyncNode extends Node implements Runnable {
 	
 	public void runMsg() throws InterruptedException {
 		checkRoutesChanged();
-		//wait();
-		//synchronized(this) {wait();}
-		TimeUnit.MILLISECONDS.sleep(1500);
+		synchronized(inputEventsFlag) {inputEventsFlag.wait(300+rand.nextInt(600));}
+		//TimeUnit.MILLISECONDS.sleep(10+rand.nextInt(20));
 	}
 	@Override
 	public void run() {
@@ -58,29 +60,30 @@ public class AsyncNode extends Node implements Runnable {
 	}
 
 	public void notifySomethingUpdated(Node n) throws InterruptedException{
-		inputEvents.put(new NodeEvent(n,somethingUpdated));
+		
+		 inputEvents.put(new NodeEvent(n,somethingUpdated));
+		 synchronized(inputEventsFlag){inputEventsFlag.notify();}
 	}
 	public void checkRoutesChanged() throws InterruptedException {
 		Set<Node> s = new HashSet<Node>();
+			int p = 5;
+			int q = 17;
+			inputEventsMaxSize = (inputEvents.size() * p + inputEventsMaxSize * q )/(p+q);
 		while (!inputEvents.isEmpty()) {
 			NodeEvent e = inputEvents.take();
 			if (e.getMessage() == routeTableChanged) s.add(e.getNode());// compress repeating events
 			if (e.getMessage() == somethingUpdated) s.add(e.getNode());// compress repeating events
 		}
 		Set<Node> nei = new HashSet<Node>(getNeighbours());
-		//System.out.println("[" +super.toShortString()+"] updates from: "+s+" #");
 		// TODO: what is set intersection operation? we need (s 'intersect' nei) -- retainAll(getNeighbours())
 		for (Node n : s) if (nei.contains(n)) {
-			//System.out.println("[" +super.toShortString()+"] updates from: "+n+" ");
 			updateReceivedRoutes(n);
 		}
 		if (updateRouteTable()) {
-			//System.out.println("[" +super.toShortString()+"] routes UPDated");
 				for (Node n : getNeighbours()) 
 					((AsyncNode) n).notifySomethingUpdated(this);
 		} else {
-			//System.out.println("[" +super.toShortString()+"] routes NO UPDATES");
 		}
-		//notifyAll();
+		
 	}
 }

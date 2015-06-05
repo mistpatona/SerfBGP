@@ -2,8 +2,9 @@ package org.concur.serfbgp;
 import java.util.ArrayList;
 //import java.util.Collection;
 import java.util.HashMap;
-
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 
@@ -14,12 +15,14 @@ public class Node {
 	private Integer id = node_counter++;
 
 	private ArrayList<Node> neighbours;
+	@SuppressWarnings("unchecked")
 	public ArrayList<Node> getNeighbours() {
-		return neighbours;
+		synchronized(neighbours) 
+		{return (ArrayList<Node>) neighbours.clone();}
 	}
-	private Map<Integer,RouteList> receivedRoutes = new HashMap<Integer,RouteList>();
+	private Map<Integer,RouteList> receivedRoutes = new ConcurrentHashMap<Integer,RouteList>();
 	private RouteList routeTable = new RouteList();
-	
+	public ReentrantLock inputEventsFlag = new ReentrantLock();
 
 	public Integer getId() {return id;}
 	public String toString() {return "N"+id;}
@@ -32,8 +35,8 @@ public class Node {
 	public Integer getNeighbourPrice(Node n) { return 100;}// for now, price is frozen
 	
 	public void removeNeighbour(Node n) {
-		System.out.println("[" +toString()+"] removing nei:"+n.toShortString());
-		if (!neighbours.remove(n)) return;
+		synchronized(neighbours) {
+			if (!neighbours.remove(n)) return; }
 		receivedRoutes.remove(n.getId());
 		updateRouteTable();
 	}
@@ -85,8 +88,10 @@ public class Node {
 	}
 	public boolean updateRouteTable(){
 		RouteList old = routeTable;
-		routeTable = bestRouteList();//essentially from "receivedRoutes" Map
-		return (!old.eqTo(routeTable));
+		RouteList young = bestRouteList();//essentially from "receivedRoutes" Map
+		//routeTable = bestRouteList();
+		synchronized(routeTable) { routeTable = young; }
+		return (!old.eqTo(young));
 	}
 	public RouteList getRouteTable(){
 		RouteList r = routeTable.mkExportRouteList(getId());
@@ -97,7 +102,7 @@ public class Node {
 		return routeTable; 
 	}
 	public void updateReceivedRoutes(){
-		Map<Integer,RouteList> tmp = new HashMap<Integer,RouteList>();
+		Map<Integer,RouteList> tmp = new ConcurrentHashMap<Integer,RouteList>();
 		for (Node n : neighbours){
 			RouteList rs = listFromNode(n,n.getRouteTable());
 			tmp.put(n.getId(), rs);
@@ -105,10 +110,12 @@ public class Node {
 		receivedRoutes = tmp;
 	}
 	public void updateReceivedRoutes(Node n){
-		Map<Integer,RouteList> tmp = receivedRoutes;
+/*		Map<Integer,RouteList> tmp = receivedRoutes;
 		    RouteList rs = listFromNode(n,n.getRouteTable());
 			tmp.put(n.getId(), rs);
-		receivedRoutes = tmp;
+		receivedRoutes = tmp;*/
+		RouteList rs = listFromNode(n,n.getRouteTable());
+		receivedRoutes.put(n.getId(), rs);
 	}
 	public void updateRoutes(){
 		updateReceivedRoutes();
@@ -119,7 +126,16 @@ public class Node {
 		updateRouteTable();
 	}
 	
-
+	public float averageRouteLength() {
+		int c=0;
+		float s=0;
+		for (RouteRecord r: getRouteTable0()) {
+			c++;
+			s=s+r.path.size();
+		}
+		if (c==0) return 0;
+		return s/c;
+	}
 	
 	
 }
