@@ -4,9 +4,6 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-//import java.util.concurrent.locks.ReentrantLock;
 
 public class AsyncNode extends Node implements Runnable {
 	
@@ -43,7 +40,6 @@ public class AsyncNode extends Node implements Runnable {
 	public void runMsg() throws InterruptedException {
 		checkRoutesChanged();
 		synchronized(inputEventsFlag) {inputEventsFlag.wait(10+rand.nextInt(600));}
-		//TimeUnit.MILLISECONDS.sleep(10+rand.nextInt(20));
 	}
 	@Override
 	public void run() {

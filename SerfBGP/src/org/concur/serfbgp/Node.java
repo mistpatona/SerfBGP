@@ -1,6 +1,5 @@
 package org.concur.serfbgp;
 import java.util.ArrayList;
-//import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,9 +58,6 @@ public class Node {
 	private RouteList listFromNode(Node n, RouteList rs){
 		return rs.taxRoutes(getNeighbourPrice(n));
 	}
-	/*private void importRoutesFromNode(Node n, RouteList rs){
-		receivedRoutes.put(n.getId(), rs);
-	}*/
 	public Map<Integer,RouteRecord> routesByDst(){
 		RouteList allRs = new RouteList();
 		for (RouteList x : receivedRoutes.values())
@@ -89,7 +85,6 @@ public class Node {
 	public boolean updateRouteTable(){
 		RouteList old = routeTable;
 		RouteList young = bestRouteList();//essentially from "receivedRoutes" Map
-		//routeTable = bestRouteList();
 		synchronized(routeTable) { routeTable = young; }
 		return (!old.eqTo(young));
 	}
@@ -110,10 +105,6 @@ public class Node {
 		receivedRoutes = tmp;
 	}
 	public void updateReceivedRoutes(Node n){
-/*		Map<Integer,RouteList> tmp = receivedRoutes;
-		    RouteList rs = listFromNode(n,n.getRouteTable());
-			tmp.put(n.getId(), rs);
-		receivedRoutes = tmp;*/
 		RouteList rs = listFromNode(n,n.getRouteTable());
 		receivedRoutes.put(n.getId(), rs);
 	}

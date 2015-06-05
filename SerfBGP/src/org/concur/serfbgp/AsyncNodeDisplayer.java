@@ -13,8 +13,6 @@ public class AsyncNodeDisplayer extends RunnableMsg{
 	
 	@Override
 	public void runMsg() throws InterruptedException {
-		//System.out.println("---------------");
-		
 		for (AsyncNode n : ns) {
 				System.out.print(n.toString());
 				System.out.print(" #routes:"+n.getRouteTable().size()+

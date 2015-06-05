@@ -51,8 +51,6 @@ public class RouteRecord implements Comparable<RouteRecord>{
 	public void prependPath(Integer n) {
 		path.add(0,n);
 	}
-	//  public RouteRecord withPrependedPath(Integer n) {
-		//	}
 	public RouteRecord copy() {
 		return new RouteRecord(dstNode,path,price);
 	}
