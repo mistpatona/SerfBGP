@@ -1,7 +1,5 @@
 package org.concur.serfbgp;
 
-
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -22,30 +20,14 @@ public class AsyncNodeManager  extends RunnableMsg{
 			exec.execute(n);
 			ns.add(n);
 	}
-		
-		
+			
 	@Override
 	public String toString() { return "AsyncNodeManager, nodes:"+ns.size(); }
 
 	@Override
 	public void runMsg() throws InterruptedException {
-		//System.out.println("---------------");
-		
-/*		for (AsyncNode n : ns) {
-				System.out.print(n.toString());
-				System.out.print(" #routes:"+n.getRouteTable().size()+
-						//" avg route len:"+n.averageRouteLength() +
-						" q size:"+n.inputEventsSize() +
-						" neighbours:"+n.neighboursString());
-				System.out.println(" ");
-		}
-		System.out.println("---------------"+NodeEvent.lastCounter()+" "+rand.nextInt(9)+
-				" modifications:"+modifications);
-		modifications = 0;
-		*/
 		if (rand.nextFloat()<0.5) for (int i=0;i<NODES*10;i++) dispatchLinks15d() ;
-		
-		TimeUnit.MILLISECONDS.sleep(100);
+		TimeUnit.MILLISECONDS.sleep(400);
 	}
 	
 	public void dispatchLinks() throws InterruptedException {
@@ -73,18 +55,15 @@ public class AsyncNodeManager  extends RunnableMsg{
 	}
 	
 	public void dispatchLinks15d() throws InterruptedException {
-
 		if (nowAddState) {
 			if (rand.nextFloat()<0.025)  {nowAddState = false;}}
 			else {if  (rand.nextFloat()<0.025)  nowAddState = true;}
-		int b =3;
+		int b = 3;
 		int i = rand.nextInt(NODES-b);
 		int j = i + rand.nextInt(b)+1;
 		modifications++;
 			if (nowAddState) ns.get(i).linkTo(ns.get(j));
 			else     ns.get(i).unlinkFrom(ns.get(j));
-		
-		
 	}
 }
 
