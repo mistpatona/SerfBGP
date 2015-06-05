@@ -18,7 +18,7 @@ public class AsyncNodeDisplayer extends RunnableMsg{
 				System.out.print(" #routes:"+n.getRouteTable().size()+
 						//" avg route len:"+n.averageRouteLength() +
 						" q size:"+n.inputEventsSize() 
-						//+" neighbours:"+n.neighboursString()
+						+" neighbours:"+n.neighboursString()
 						);
 				System.out.println(" ");
 		}

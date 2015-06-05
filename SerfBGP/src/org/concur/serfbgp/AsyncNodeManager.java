@@ -26,7 +26,7 @@ public class AsyncNodeManager  extends RunnableMsg{
 
 	@Override
 	public void runMsg() throws InterruptedException {
-		if (rand.nextFloat()<0.5) for (int i=0;i<NODES*10;i++) dispatchLinks15d() ;
+		if (rand.nextFloat()<0.5) for (int i=0;i<NODES*10;i++) dispatchLinks() ;
 		TimeUnit.MILLISECONDS.sleep(400);
 	}
 	
