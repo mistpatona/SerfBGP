@@ -42,7 +42,7 @@ public class AsyncNode extends Node implements Runnable {
 	
 	public void runMsg() throws InterruptedException {
 		checkRoutesChanged();
-		synchronized(inputEventsFlag) {inputEventsFlag.wait(300+rand.nextInt(600));}
+		synchronized(inputEventsFlag) {inputEventsFlag.wait(10+rand.nextInt(600));}
 		//TimeUnit.MILLISECONDS.sleep(10+rand.nextInt(20));
 	}
 	@Override

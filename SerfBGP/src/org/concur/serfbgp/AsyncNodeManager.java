@@ -13,7 +13,7 @@ public class AsyncNodeManager  extends RunnableMsg{
 	private List<AsyncNode> ns = new LinkedList<AsyncNode>();
 	private static Random rand = new Random(31);
 	private static boolean nowAddState = true;
-	private static long modifications;
+	static long modifications;
 	public static final int NODES=100;
 	public AsyncNodeManager(ExecutorService e) {
 		exec = e;
@@ -31,7 +31,7 @@ public class AsyncNodeManager  extends RunnableMsg{
 	public void runMsg() throws InterruptedException {
 		//System.out.println("---------------");
 		
-		for (AsyncNode n : ns) {
+/*		for (AsyncNode n : ns) {
 				System.out.print(n.toString());
 				System.out.print(" #routes:"+n.getRouteTable().size()+
 						//" avg route len:"+n.averageRouteLength() +
@@ -42,15 +42,15 @@ public class AsyncNodeManager  extends RunnableMsg{
 		System.out.println("---------------"+NodeEvent.lastCounter()+" "+rand.nextInt(9)+
 				" modifications:"+modifications);
 		modifications = 0;
+		*/
+		if (rand.nextFloat()<0.5) for (int i=0;i<NODES*10;i++) dispatchLinks15d() ;
 		
-		if (rand.nextFloat()<0.5) for (int i=0;i<NODES*10;i++) dispatchLinks() ;
-		
-		TimeUnit.MILLISECONDS.sleep(1000);
+		TimeUnit.MILLISECONDS.sleep(100);
 	}
 	
 	public void dispatchLinks() throws InterruptedException {
 		if (nowAddState) {
-			if (rand.nextFloat()<0.025)  {nowAddState = false;}
+			if (rand.nextFloat()<0.030)  {nowAddState = false;}
 		}else {if  (rand.nextFloat()<0.025)  nowAddState = true;}
 		int i1 = rand.nextInt(NODES);
 		int i2 = rand.nextInt(NODES);
@@ -72,22 +72,18 @@ public class AsyncNodeManager  extends RunnableMsg{
 		
 	}
 	
-	private boolean checkB(int i) {
-		return (i>=0) && (i<NODES);
-	}
 	public void dispatchLinks15d() throws InterruptedException {
 
 		if (nowAddState) {
 			if (rand.nextFloat()<0.025)  {nowAddState = false;}}
 			else {if  (rand.nextFloat()<0.025)  nowAddState = true;}
-		int i = rand.nextInt(NODES-1);
 		int b =3;
-		int j = i + rand.nextInt(2*b) - b;
-		if ((i!=j) && checkB(j)) {
-			modifications++;
+		int i = rand.nextInt(NODES-b);
+		int j = i + rand.nextInt(b)+1;
+		modifications++;
 			if (nowAddState) ns.get(i).linkTo(ns.get(j));
 			else     ns.get(i).unlinkFrom(ns.get(j));
-		}
+		
 		
 	}
 }
