@@ -1,7 +1,9 @@
 package org.concur.serfbgp;
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.HashMap;
+//import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -13,11 +15,10 @@ public class Node {
 	private static Integer node_counter = 0;
 	private Integer id = node_counter++;
 
-	private ArrayList<Node> neighbours;
-	@SuppressWarnings("unchecked")
-	public ArrayList<Node> getNeighbours() {
-		synchronized(neighbours) 
-		{return (ArrayList<Node>) neighbours.clone();}
+	private ConcurrentHashMap<Node,NodeInfo> neighbours = 
+			new ConcurrentHashMap<Node,NodeInfo>();
+	public Set<Node> getNeighbours() {
+		return neighbours.keySet();
 	}
 	private Map<Integer,RouteList> receivedRoutes = new ConcurrentHashMap<Integer,RouteList>();
 	private RouteList routeTable = new RouteList();
@@ -28,14 +29,13 @@ public class Node {
 	public String toShortString() {return "N"+id;}
 	public String neighboursString() {
 		StringBuilder result = new StringBuilder();
-		for (Node n : neighbours) result.append(n.toShortString()+";");
+		for (Node n : getNeighbours()) result.append(n.toShortString()+";");
 		return result.toString();
 	}
-	public Integer getNeighbourPrice(Node n) { return 100;}// for now, price is frozen
+	public Integer getNeighbourPrice(Node n) { return 100; }// for now, price is frozen
 	
 	public void removeNeighbour(Node n) {
-		synchronized(neighbours) {
-			if (!neighbours.remove(n)) return; }
+		if (neighbours.remove(n) == null) return; 
 		receivedRoutes.remove(n.getId());
 		updateRouteTable();
 	}
@@ -44,17 +44,16 @@ public class Node {
 		n.removeNeighbour(this);
 	}
 	public  void addNeighbour(Node n) {
-		synchronized (neighbours) {
-		if ((!neighbours.contains(n)) && (!n.equals(this)))   neighbours.add(n);
-		}
+		if ((!neighbours.containsKey(n)) && (!n.equals(this)))   
+			neighbours.put(n,new NodeInfo()); // TODO: NodeInfo is a dummy plug now
 	}
 	public void linkTo(Node n) {
 		addNeighbour(n);
 		n.addNeighbour(this);
 	}
-	public Node(){
+	/*public Node(){
 		neighbours = new ArrayList<Node>(5);
-	}
+	}*/
 	private RouteList listFromNode(Node n, RouteList rs){
 		return rs.taxRoutes(getNeighbourPrice(n));
 	}
@@ -98,7 +97,7 @@ public class Node {
 	}
 	public void updateReceivedRoutes(){
 		Map<Integer,RouteList> tmp = new ConcurrentHashMap<Integer,RouteList>();
-		for (Node n : neighbours){
+		for (Node n : getNeighbours()){
 			RouteList rs = listFromNode(n,n.getRouteTable());
 			tmp.put(n.getId(), rs);
 		}
