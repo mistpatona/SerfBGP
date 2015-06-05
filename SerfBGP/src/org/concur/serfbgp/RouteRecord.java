@@ -54,5 +54,8 @@ public class RouteRecord implements Comparable<RouteRecord>{
 	public RouteRecord copy() {
 		return new RouteRecord(dstNode,path,price);
 	}
+	public int pathSize() {
+		return path.size();
+	}
 	
 }

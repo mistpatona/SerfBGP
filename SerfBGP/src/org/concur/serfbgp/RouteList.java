@@ -3,6 +3,8 @@ package org.concur.serfbgp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 
 
@@ -82,6 +84,15 @@ public class RouteList extends ArrayList<RouteRecord> {
 		RouteList ans = new RouteList();
 		for (RouteRecord r:this) 
 			ans.add(r.plusTax(p));
+		return ans;
+	}
+	public Map<Integer,Integer> pathLengthStats() {
+		HashMap<Integer,Integer> ans = new HashMap<Integer,Integer>(3); 
+		for (RouteRecord r:this){
+			Integer i = r.pathSize();
+			if (ans.containsKey(i)) {ans.put(i,ans.get(i)+1);}
+			else {ans.put(i,1);}
+		}
 		return ans;
 	}
 }

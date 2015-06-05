@@ -2,6 +2,8 @@ package org.concur.serfbgp;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 public class AsyncNodeDisplayer extends RunnableMsg{
@@ -15,10 +17,12 @@ public class AsyncNodeDisplayer extends RunnableMsg{
 	public void runMsg() throws InterruptedException {
 		for (AsyncNode n : ns) {
 				System.out.print(n.toString());
-				System.out.print(" #routes:"+n.getRouteTable().size()+
+				RouteList rs = n.getRouteTable();
+				System.out.print(" #routes:"+rs.size()+
 						//" avg route len:"+n.averageRouteLength() +
-						" q size:"+n.inputEventsSize() 
-						+" neighbours:"+n.neighboursString()
+						" Qsize:"+n.inputEventsSize() 
+						+" Nneighbours:"+n.getNeighbours().size()
+						+" Path lengths: "+mapStats(rs.pathLengthStats())
 						);
 				System.out.println(" ");
 		}
@@ -26,5 +30,16 @@ public class AsyncNodeDisplayer extends RunnableMsg{
 				" modifications:"+AsyncNodeManager.modifications);
 		TimeUnit.MILLISECONDS.sleep(3000);
 	}
-
+	
+	public String mapStats(Map<Integer,Integer> m) {
+		StringBuilder ans = new StringBuilder();
+		for (Entry<Integer,Integer> e : m.entrySet()) {
+			ans.append(e.getKey());
+			ans.append(":");
+			ans.append(e.getValue());
+			ans.append(" ");
+		}
+		ans.append(".");
+		return ans.toString();
+	}
 }

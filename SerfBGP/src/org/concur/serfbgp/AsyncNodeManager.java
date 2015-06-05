@@ -26,16 +26,17 @@ public class AsyncNodeManager  extends RunnableMsg{
 
 	@Override
 	public void runMsg() throws InterruptedException {
-		if (rand.nextFloat()<0.5) for (int i=0;i<NODES*10;i++) dispatchLinks() ;
+		if (rand.nextFloat()<0.5) for (int i=0;i<NODES*10;i++) dispatchLinks15d() ;
 		TimeUnit.MILLISECONDS.sleep(400);
 	}
 	
 	public void dispatchLinks() throws InterruptedException {
 		if (nowAddState) {
-			if (rand.nextFloat()<0.030)  {nowAddState = false;}
+			if (rand.nextFloat()<0.035)  {nowAddState = false;}
 		}else {if  (rand.nextFloat()<0.025)  nowAddState = true;}
 		int i1 = rand.nextInt(NODES);
 		int i2 = rand.nextInt(NODES);
+		// any to any
 		if (i1 != i2) {
 			modifications++;
 			if (nowAddState) ns.get(i1).linkTo(ns.get(i2));
@@ -48,6 +49,7 @@ public class AsyncNodeManager  extends RunnableMsg{
 			if (rand.nextFloat()<0.025)  {nowAddState = false;}}
 			else {if  (rand.nextFloat()<0.025)  nowAddState = true;}
 		int i = rand.nextInt(NODES-1);
+		// only next to next
 		if (nowAddState) ns.get(i).linkTo(ns.get(i+1));
 		else     ns.get(i).unlinkFrom(ns.get(i+1));
 		modifications++;
@@ -61,6 +63,7 @@ public class AsyncNodeManager  extends RunnableMsg{
 		int b = 3;
 		int i = rand.nextInt(NODES-b);
 		int j = i + rand.nextInt(b)+1;
+		// only those close enough, within "b" nodes near
 		modifications++;
 			if (nowAddState) ns.get(i).linkTo(ns.get(j));
 			else     ns.get(i).unlinkFrom(ns.get(j));
