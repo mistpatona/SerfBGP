@@ -31,11 +31,14 @@ public class AsyncNodeDisplayer extends RunnableMsg{
 		TimeUnit.MILLISECONDS.sleep(3000);
 	}
 	
-	public String mapStats(Map<Integer,Integer> m) {
+	public String mapStats(Map<Integer, Integer> m) {
 		StringBuilder ans = new StringBuilder();
-		for (Entry<Integer,Integer> e : m.entrySet()) {
-			ans.append(e.getKey());
-			ans.append(":");
+		for (Entry<Integer, Integer> e : m.entrySet()) {
+			int k = e.getKey();
+			if (k % 5 == 0) {
+				ans.append(k);
+				ans.append(":");
+			}
 			ans.append(e.getValue());
 			ans.append(" ");
 		}

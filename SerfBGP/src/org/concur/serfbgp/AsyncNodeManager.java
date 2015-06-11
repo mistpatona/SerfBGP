@@ -11,12 +11,12 @@ public class AsyncNodeManager  extends RunnableMsg{
 	private List<AsyncNode> ns = new LinkedList<AsyncNode>();
 	private static Random rand = new Random(31);
 	private static boolean nowAddState = true;
-	static long modifications;
+	static volatile long modifications;
 	public static final int NODES=100;
 	public AsyncNodeManager(ExecutorService e) {
 		exec = e;
 	}
-	public void add(AsyncNode n) {
+	public synchronized void add(AsyncNode n) {
 			exec.execute(n);
 			ns.add(n);
 	}
@@ -26,7 +26,7 @@ public class AsyncNodeManager  extends RunnableMsg{
 
 	@Override
 	public void runMsg() throws InterruptedException {
-		if (rand.nextFloat()<0.5) for (int i=0;i<NODES*10;i++) dispatchLinks15d() ;
+		if (rand.nextFloat()<0.5) for (int i=0;i<NODES*10;i++) dispatchLinks1dLim() ;
 		TimeUnit.MILLISECONDS.sleep(400);
 	}
 	
@@ -60,7 +60,7 @@ public class AsyncNodeManager  extends RunnableMsg{
 		if (nowAddState) {
 			if (rand.nextFloat()<0.025)  {nowAddState = false;}}
 			else {if  (rand.nextFloat()<0.025)  nowAddState = true;}
-		int b = 3;
+		int b = 7;
 		int i = rand.nextInt(NODES-b);
 		int j = i + rand.nextInt(b)+1;
 		// only those close enough, within "b" nodes near
@@ -68,6 +68,36 @@ public class AsyncNodeManager  extends RunnableMsg{
 			if (nowAddState) ns.get(i).linkTo(ns.get(j));
 			else     ns.get(i).unlinkFrom(ns.get(j));
 	}
+	
+	public void dispatchLinks1dLim() throws InterruptedException {
+		if (nowAddState) {
+			if (rand.nextFloat() < 0.025) {
+				nowAddState = false;
+			}
+		} else {
+			if (rand.nextFloat() < 0.055)
+				nowAddState = true;
+		}
+		int lim = 5;
+		int b = 10;
+		int i = rand.nextInt(NODES - b);
+		int j = i + rand.nextInt(b) + 1;
+		// only next to next
+		if (nowAddState) {
+			AsyncNode n1 = ns.get(i);
+			AsyncNode n2 = ns.get(j);
+			if ((n1.getNeighbourCount() < lim)
+					&& (n2.getNeighbourCount() < lim)) {
+				n1.linkTo(n2);
+				modifications++;
+			}
+		} else {
+			ns.get(i).unlinkFrom(ns.get(j));
+			modifications++;
+		}
+
+	}
+	
 }
 
 

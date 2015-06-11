@@ -20,6 +20,9 @@ public class Node {
 	public Set<Node> getNeighbours() {
 		return neighbours.keySet();
 	}
+	public int getNeighbourCount() {
+		return neighbours.size();
+	}
 	private Map<Integer,RouteList> receivedRoutes = new ConcurrentHashMap<Integer,RouteList>();
 	private RouteList routeTable = new RouteList();
 	public ReentrantLock inputEventsFlag = new ReentrantLock();
