@@ -79,7 +79,7 @@ public class AsyncNodeManager  extends RunnableMsg{
 				nowAddState = true;
 		}
 		int lim = 5;
-		int b = 10;
+		int b = 5;
 		int i = rand.nextInt(NODES - b);
 		int j = i + rand.nextInt(b) + 1;
 		// only next to next
