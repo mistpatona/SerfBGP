@@ -13,6 +13,15 @@ public class AsyncNode extends Node implements Runnable {
 	public static final String routeTableChanged = "route table changed";
 	public static final String somethingUpdated = "something updated";
 	private static Random rand = new Random(31);
+	private Point positionCoords;
+
+	public Point getPositionCoords() {
+		return positionCoords;
+	}
+
+	public void setPositionCoords(Point positionCoords) {
+		this.positionCoords = positionCoords;
+	}
 
 	@Override
 	public String toString() {
