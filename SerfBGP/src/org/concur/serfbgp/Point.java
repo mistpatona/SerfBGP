@@ -3,6 +3,14 @@ package org.concur.serfbgp;
 public class Point {
 	final float x, y;
 
+	public float getX() {
+		return x;
+	}
+
+	public float getY() {
+		return y;
+	}
+
 	Point(float x_, float y_) {
 		x = x_;
 		y = y_;

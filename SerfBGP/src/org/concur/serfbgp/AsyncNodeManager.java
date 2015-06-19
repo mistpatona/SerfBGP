@@ -26,7 +26,7 @@ public class AsyncNodeManager  extends RunnableMsg{
 
 	@Override
 	public void runMsg() throws InterruptedException {
-		if (rand.nextFloat()<0.5) for (int i=0;i<NODES*10;i++) dispatchLinks1dLim() ;
+		if (rand.nextFloat()<0.5) for (int i=0;i<NODES*10;i++) dispatchLinks1dLimDist() ;
 		TimeUnit.MILLISECONDS.sleep(400);
 	}
 	
@@ -82,12 +82,41 @@ public class AsyncNodeManager  extends RunnableMsg{
 		int b = 5;
 		int i = rand.nextInt(NODES - b);
 		int j = i + rand.nextInt(b) + 1;
-		// only next to next
+		// only next to next 
 		if (nowAddState) {
 			AsyncNode n1 = ns.get(i);
 			AsyncNode n2 = ns.get(j);
 			if ((n1.getNeighbourCount() < lim)
 					&& (n2.getNeighbourCount() < lim)) {
+				n1.linkTo(n2);
+				modifications++;
+			}
+		} else {
+			ns.get(i).unlinkFrom(ns.get(j));
+			modifications++;
+		}
+
+	}
+	public void dispatchLinks1dLimDist() throws InterruptedException {
+		if (nowAddState) {
+			if (rand.nextFloat() < 0.025) {
+				nowAddState = false;
+			}
+		} else {
+			if (rand.nextFloat() < 0.055)
+				nowAddState = true;
+		}
+		int lim = 5;
+		int b = 15;
+		int i = rand.nextInt(NODES - b);
+		int j = i + rand.nextInt(b) + 1;
+		// only next to next //getGeomDistanceTo
+		if (nowAddState) {
+			AsyncNode n1 = ns.get(i);
+			AsyncNode n2 = ns.get(j);
+			if ((n1.getNeighbourCount() < lim)
+					&& (n2.getNeighbourCount() < lim)
+					&&  (n1.getGeomDistanceTo(n2) < 0.15)) {
 				n1.linkTo(n2);
 				modifications++;
 			}

@@ -18,6 +18,10 @@ public class AsyncNode extends Node implements Runnable {
 	public Point getPositionCoords() {
 		return positionCoords;
 	}
+	
+	public float getGeomDistanceTo (AsyncNode n)  {
+		return this.getPositionCoords().distanceTo(n.getPositionCoords());
+	}
 
 	public void setPositionCoords(Point positionCoords) {
 		this.positionCoords = positionCoords;
