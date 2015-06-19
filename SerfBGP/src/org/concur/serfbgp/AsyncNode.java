@@ -22,6 +22,16 @@ public class AsyncNode extends Node implements Runnable {
 	public float getGeomDistanceTo (AsyncNode n)  {
 		return this.getPositionCoords().distanceTo(n.getPositionCoords());
 	}
+	
+	public float getBiasedDistanceTo(AsyncNode n)  {
+		Point p1 = this.getPositionCoords();
+		Point p2 = n.getPositionCoords();
+		float x1 = p1.getX(), y1=p1.getY(), x2 = p2.getX(), y2 = p2.getY();
+		//west-biased:		if (x1>x2) return Math.abs(y1-y2)/4;
+		//return p1.distanceTo(p2);
+		//verticals are much cheaper:
+		return Math.abs(y1-y2)/10 + Math.abs(x1-x2);
+	}
 
 	public void setPositionCoords(Point positionCoords) {
 		this.positionCoords = positionCoords;

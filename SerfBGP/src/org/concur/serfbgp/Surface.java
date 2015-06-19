@@ -68,8 +68,9 @@ class Surface extends JPanel implements ActionListener {
         	n.drawNeiLinks(g, this);
         }
         
-        DrawingNode n = points.get(22);
-        n.drawNeiLinks(g, this);
+        DrawingNode n = points.get(45);
+        n.drawRoutes(points, g, this);
+        //n.drawNeiLinks(g, this);
 
         g2d.drawString(str, 10, 10);
     }
